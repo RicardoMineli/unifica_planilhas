@@ -2,16 +2,16 @@ name: Build for macOS
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:  # permite iniciar manualmente
+    tags:
+      - 'v*'          # roda quando você cria uma tag v1.0.0 etc.
+  workflow_dispatch:
 
 jobs:
   build-macos:
     runs-on: macos-latest
 
     steps:
-    - name: Checkout código
+    - name: Checkout do código
       uses: actions/checkout@v3
 
     - name: Criar ambiente virtual e instalar dependências
@@ -24,16 +24,13 @@ jobs:
     - name: Compilar com PyInstaller
       run: |
         source venv/bin/activate
-        pyinstaller --onefile --name "Unifica Planilhas" unifica_planilhas.py
+        pyinstaller --onefile --name "UnificaPlanilhas" unifica_planilhas.py
 
-    - name: Renomear e zipar o binário
-      run: |
-        cd dist
-        mv "Unifica Planilhas" UnificaPlanilhas-mac
-        zip UnificaPlanilhas-mac.zip UnificaPlanilhas-mac
-
-    - name: Upload do binário compilado
-      uses: actions/upload-artifact@v4
+    - name: Publicar release com binário
+      uses: softprops/action-gh-release@v1
       with:
-        name: UnificaPlanilhas-mac
-        path: dist/UnificaPlanilhas-mac.zip
+        name: "Unifica Planilhas para macOS"
+        tag_name: ${{ github.ref_name }}
+        files: dist/UnificaPlanilhas
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
