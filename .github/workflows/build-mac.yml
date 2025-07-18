@@ -3,33 +3,33 @@ name: Build for macOS
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Ex: v1.0.0, v1.1.0 etc.
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write  # 🔑 necessário para criar releases
 
 jobs:
   build-macos:
     runs-on: macos-latest
 
     steps:
-    - name: Checkout do código
+    - name: 🔄 Checkout do código
       uses: actions/checkout@v3
 
-    - name: Criar ambiente virtual e instalar dependências
+    - name: 🧪 Criar ambiente virtual e instalar dependências
       run: |
         python3 -m venv venv
         source venv/bin/activate
         pip install --upgrade pip
-        pip install pyinstaller pandas tqdm odfpy
+        pip install pyinstaller pandas openpyxl odfpy
 
-    - name: Compilar com PyInstaller
+    - name: ⚙️ Compilar com PyInstaller
       run: |
         source venv/bin/activate
-        pyinstaller --onefile --name "UnificaPlanilhas" unifica_planilhas.py
+        pyinstaller --onefile --windowed --name "UnificaPlanilhas" unifica_planilhas.py
 
-    - name: Publicar release com binário
+    - name: 🚀 Publicar release com binário
       uses: softprops/action-gh-release@v1
       with:
         name: "Unifica Planilhas para macOS"
