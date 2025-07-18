@@ -3,8 +3,11 @@ name: Build for macOS
 on:
   push:
     tags:
-      - 'v*'          # roda quando você cria uma tag v1.0.0 etc.
+      - 'v*'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-macos:
