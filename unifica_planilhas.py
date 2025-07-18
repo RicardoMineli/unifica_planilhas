@@ -4,11 +4,10 @@ import math
 import pandas as pd
 from tqdm import tqdm
 
+# Detecta diretório correto, seja no .py ou .exe compilado
 if getattr(sys, 'frozen', False):
-    # Executável compilado
     pasta_entrada = os.path.dirname(sys.executable)
 else:
-    # Rodando com Python normal
     pasta_entrada = os.path.dirname(os.path.abspath(__file__))
 
 arquivo_saida = 'planilhas_unificadas.csv'
@@ -19,7 +18,7 @@ extensoes = ['.xlsx', '.xls', '.csv', '.ods']
 # Lista para armazenar todos os DataFrames
 todas_linhas = []
 
-# Filtra apenas arquivos com extensões suportadas
+# Lista de arquivos válidos na pasta
 arquivos = [f for f in os.listdir(pasta_entrada) if os.path.splitext(f)[1].lower() in extensoes]
 
 # Processa os arquivos com barra de progresso
@@ -30,17 +29,17 @@ for nome_arquivo in tqdm(arquivos, desc="Lendo arquivos"):
     try:
         if ext.lower() == '.csv':
             df = pd.read_csv(caminho, sep=';')
-            df.columns = [str(col).strip() for col in df.columns]  # Normaliza o cabeçalho
+            df.columns = [str(col).strip().lower() for col in df.columns]  # Normalize colunas
             todas_linhas.append(df)
         else:
             xls = pd.read_excel(caminho, sheet_name=None, engine='odf' if ext == '.ods' else None)
             for _, df in xls.items():
-                df.columns = [str(col).strip() for col in df.columns]
+                df.columns = [str(col).strip().lower() for col in df.columns]  # Normalize colunas
                 todas_linhas.append(df)
     except Exception as e:
         print(f"Erro ao processar {nome_arquivo}: {e}")
 
-# Salva o arquivo final em CSV com barra de progresso
+# Salva o arquivo final
 if todas_linhas:
     df_final = pd.concat(todas_linhas, ignore_index=True)
 
