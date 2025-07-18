@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  
+  workflow_dispatch:  # permite iniciar manualmente
 
 jobs:
   build-macos:
@@ -14,17 +14,26 @@ jobs:
     - name: Checkout código
       uses: actions/checkout@v3
 
-    - name: Instalar dependências
+    - name: Criar ambiente virtual e instalar dependências
       run: |
-        python3 -m pip install --upgrade pip
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
         pip install pyinstaller pandas tqdm odfpy
 
     - name: Compilar com PyInstaller
       run: |
-        pyinstaller --onefile 4bf501e2-de22-4c70-81ee-46e8c1592b4d.py
+        source venv/bin/activate
+        pyinstaller --onefile --name "Unifica Planilhas" 4bf501e2-de22-4c70-81ee-46e8c1592b4d.py
 
-    - name: Fazer upload do executável
+    - name: Renomear e zipar o binário
+      run: |
+        cd dist
+        mv "Unifica Planilhas" UnificaPlanilhas-mac
+        zip UnificaPlanilhas-mac.zip UnificaPlanilhas-mac
+
+    - name: Upload do binário compilado
       uses: actions/upload-artifact@v4
       with:
-        name: macos-binary
-        path: dist/4bf501e2-de22-4c70-81ee-46e8c1592b4d
+        name: UnificaPlanilhas-mac
+        path: dist/UnificaPlanilhas-mac.zip
